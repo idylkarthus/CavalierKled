@@ -40,7 +40,7 @@ end
 
 function AutoUpdater()
     local ToUpdate = {}
-    ToUpdate.Version = 1
+    ToUpdate.Version = KledVersion
     ToUpdate.UseHttps = true
     ToUpdate.Host = "raw.githubusercontent.com"
     ToUpdate.VersionPath = "/idylkarthus/CavalierKled/master/CavalierKled.Version"

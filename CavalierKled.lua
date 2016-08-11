@@ -13,6 +13,7 @@ KledVersion = 1.0
 local VP = VPrediction()
 
 function OnLoad()
+	AutoUpdater()
     Config = scriptConfig("Kled Beta", "JJ")
     Config:addParam("shoot", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
     Config:addSubMenu("Combo", "combo")
@@ -42,13 +43,13 @@ function AutoUpdater()
     ToUpdate.Version = 1
     ToUpdate.UseHttps = true
     ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/Superx321/BoL/master/common/SxOrbWalk.Version"
-    ToUpdate.ScriptPath =  "/Superx321/BoL/master/common/SxOrbWalk.lua"
+    ToUpdate.VersionPath = "/idylkarthus/CavalierKled/master/CavalierKled.Version"
+    ToUpdate.ScriptPath =  "/idylkarthus/CavalierKled/master/CavalierKled.lua"
     ToUpdate.SavePath = LIB_PATH.."/CavalierKled.lua"
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". </b></font>") end
-    ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
-    ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
-    ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
+    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". </b></font>") end
+    ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
+    ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
+    ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
     ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
 end
 

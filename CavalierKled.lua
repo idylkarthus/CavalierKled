@@ -9,7 +9,7 @@ TIAMATSLOT = nil
 Mount = true
 smite = nil
 ignite = nil
-KledVersion = 1.0
+KledVersion = 1.1
 local VP = VPrediction()
 
 function OnLoad()

@@ -64,7 +64,7 @@ function AutoUpdater()
     ToUpdate.VersionPath = "/idylkarthus/CavalierKled/master/CavalierKled.Version"
     ToUpdate.ScriptPath =  "/idylkarthus/CavalierKled/master/CavalierKled.lua"
     ToUpdate.SavePath = SCRIPT_PATH.."/CavalierKled.lua"
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". </b></font>") end
+    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..", Double F9. </b></font>") end
     ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
     ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
     ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>CavalierKled: </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end

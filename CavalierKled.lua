@@ -59,7 +59,7 @@ function OnLoad()
 
     UPL:AddToMenu(Config)
     UPL:AddSpell(_Q, { speed = 1600, delay = 0.25, range = 750, width = 70, collision = false, aoe = false, type = "linear" })
-    UPL:AddSpell(_W, { speed = 2800, delay = 0.50, range = 700, width = 70, collision = false, aoe = true, type = "cone" })
+    UPL:AddSpell(_W, { speed = 2800, delay = 0.25, range = 700, width = 70, collision = false, aoe = true, type = "cone" })
     UPL:AddSpell(_E, { speed = 1600, delay = 0.25, range = 550, width = 70, collision = false, aoe = true, type = "linear" })
 end
 

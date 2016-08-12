@@ -9,7 +9,7 @@ TIAMATSLOT = nil
 Mount = true
 smite = nil
 ignite = nil
-KledVersion = 1.6
+KledVersion = 1.7
 MinionsLeft = 0
 HitsLeft = 0
 ShotsLeftMin = 0
@@ -18,7 +18,7 @@ local VP = VPrediction()
 
 function OnLoad()
 	AutoUpdater()
-    Config = scriptConfig("Cavalier Kled V1.5", "JJ")
+    Config = scriptConfig("Cavalier Kled V1.7", "JJ")
     Config:addParam("shoot", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
     Config:addSubMenu("Combo", "combo")
     Config.combo:addParam("comboQm", "Use Mounted Q in combo", SCRIPT_PARAM_ONOFF, true)
@@ -37,6 +37,7 @@ function OnLoad()
     Config:addSubMenu("Kill Steal", "ks")
     Config.ks:addParam("ksQm", "Use Mounted Q in KS", SCRIPT_PARAM_ONOFF, true)
     Config.ks:addParam("ksQ", "Use Gun Q in KS", SCRIPT_PARAM_ONOFF, true)
+    Config.ks:addParam("ksQpellets", "Extra Pellets to Gun Q Dmg", SCRIPT_PARAM_LIST, 1, {"1", "2", "3","4"})
     Config.ks:addParam("ksE1", "Use First (E) dash in KS", SCRIPT_PARAM_ONOFF, true)
     Config.ks:addParam("ksE2", "Use Second(E) dash in KS", SCRIPT_PARAM_ONOFF, true)
     Config.ks:addParam("ksSmiteSum", "Smite them dead", SCRIPT_PARAM_ONOFF, true)
@@ -374,7 +375,7 @@ function RSteal()
 				if myHero:GetSpellData(_Q).name == "KledQ" and enemy.health < GetQDamage(enemy) and ValidTarget(enemy, 750) and Config.ks.ksQm then
 					CastQ(enemy)
 				end
-				if myHero:GetSpellData(_Q).name == "KledRiderQ" and enemy.health < GetQDamage(enemy) and ValidTarget(enemy, 700) and Config.ks.ksQ then
+				if myHero:GetSpellData(_Q).name == "KledRiderQ" and enemy.health < GetQDamage(enemy)+GetQDamage(enemy)*(0.2*Config.ks.ksQpellets) and ValidTarget(enemy, 700) and Config.ks.ksQ then
 					CastQ(enemy)
 				end
 			end

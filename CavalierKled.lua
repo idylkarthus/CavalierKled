@@ -9,7 +9,7 @@ TIAMATSLOT = nil
 Mount = true
 smite = nil
 ignite = nil
-KledVersion = 1.3
+KledVersion = 1.3.1
 MinionsLeft = 0
 HitsLeft = 0
 ShotsLeftMin = 0
@@ -51,9 +51,9 @@ function OnLoad()
 
 
     UPL:AddToMenu(Config)
-    UPL:AddSpell(_Q, { speed = 1000, delay = 0.25, range = 750, width = 70, collision = false, aoe = false, type = "linear" })
-    UPL:AddSpell(_W, { speed = 1800, delay = 0.50, range = 750, width = 70, collision = false, aoe = true, type = "cone" })
-    UPL:AddSpell(_E, { speed = 1400, delay = 0.25, range = 550, width = 70, collision = false, aoe = true, type = "linear" })
+    UPL:AddSpell(_Q, { speed = 1600, delay = 0.25, range = 750, width = 70, collision = false, aoe = false, type = "linear" })
+    UPL:AddSpell(_W, { speed = 2800, delay = 0.50, range = 700, width = 70, collision = false, aoe = true, type = "cone" })
+    UPL:AddSpell(_E, { speed = 1600, delay = 0.25, range = 550, width = 70, collision = false, aoe = true, type = "linear" })
 end
 
 function AutoUpdater()
@@ -240,7 +240,7 @@ end
 
 function Combo()
 	if Target then
-		if myHero:CanUseSpell(_Q) == READY and GetDistance(Target) < 750 then
+		if myHero:CanUseSpell(_Q) == READY then
 			if Config.combo.comboQm == true and myHero:GetSpellData(_Q).name == "KledQ" then
 				CastQ(Target)
 				--DelayAction(function() CastE(Target) end, 1.0)
@@ -250,7 +250,7 @@ function Combo()
 			end
 		end
 		--TargetHaveBuff("kledqmark", target) == false 
-		if myHero:CanUseSpell(_E) == READY and GetDistance(Target) < 550 and (GetSpellData(_Q).currentCd > 0 or GetSpellData(_Q).level < 1) and ((GetSpellData(_Q).currentCd < GetSpellData(_Q).cd-0.65 and GetSpellData(_Q).level > 1) or (GetDistance(Target) > 125 and (Config.combo.delayE == false or GetSpellData(_Q).level < 1))) then
+		if myHero:CanUseSpell(_E) == READY and (GetSpellData(_Q).currentCd > 0 or GetSpellData(_Q).level < 1) and ((GetSpellData(_Q).currentCd < GetSpellData(_Q).cd-0.65 and GetSpellData(_Q).level > 1) or (GetDistance(Target) > 125 and (Config.combo.delayE == false or GetSpellData(_Q).level < 1))) then
 			if Config.combo.comboE1 == true and myHero:GetSpellData(_E).name == "KledE" then
 				CastE(Target)
 			end

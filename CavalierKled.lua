@@ -18,7 +18,7 @@ local VP = VPrediction()
 
 function OnLoad()
 	AutoUpdater()
-    Config = scriptConfig("Cavalier Kled V1.4", "JJ")
+    Config = scriptConfig("Cavalier Kled V1.5", "JJ")
     Config:addParam("shoot", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
     Config:addSubMenu("Combo", "combo")
     Config.combo:addParam("comboQm", "Use Mounted Q in combo", SCRIPT_PARAM_ONOFF, true)

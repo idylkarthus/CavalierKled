@@ -41,6 +41,12 @@ function OnLoad()
     Config.ks:addParam("ksE2", "Use Second(E) dash in KS", SCRIPT_PARAM_ONOFF, true)
     Config.ks:addParam("ksSmiteSum", "Smite them dead", SCRIPT_PARAM_ONOFF, true)
     Config.ks:addParam("ksIgniteSum", "Ignite the fuckers", SCRIPT_PARAM_ONOFF, true)
+    Config:addParam("clear", "Farm", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
+    Config:addSubMenu("Farm", "clearsettings")
+    Config.clearsettings:addParam("clearQm", "Farm with Mounted Q", SCRIPT_PARAM_LIST, 1, {"Last Hit", "Clear", "Disabled"})
+    Config.clearsettings:addParam("clearQ", "Farm with Gun Q", SCRIPT_PARAM_LIST, 1, {"Last Hit", "Clear", "Disabled"})
+    Config.clearsettings:addParam("clearE1", "Farm with First (E) Dash", SCRIPT_PARAM_LIST, 3, {"Last Hit", "Clear", "Disabled"})
+
     Config:addSubMenu("Draw", "draw")
     Config.draw:addParam("rangetest", "Champion Circle", SCRIPT_PARAM_SLICE, 500, 0, 2000, 1)
     Config.draw:addParam("customrange", "Draw Custom Range Circle", SCRIPT_PARAM_ONOFF, true)
@@ -74,19 +80,22 @@ end
 function OnTick()
 	GetTiamat()
 	GetTitanic()
-	--print(tostring(myHero.mana))
 	targetSelector:update()
-	--print(myHero:GetSpellData(_Q).name)
 	Target = targetSelector.target
 	MinionsLeft = math.ceil((100-myHero.mana)/4)
 	HitsLeft = math.ceil((100-myHero.mana)/15)
 	ShotsLeftMin = math.ceil((100-myHero.mana)/25)
 	ShotsLeftMax = math.ceil((100-myHero.mana)/5)
+	
+	--print(tostring( GetDistance(myHero, mousePos) ))
 	if Config.shoot then
 		Combo()
 	end
 	if Config.harass then
 		Harass()
+	end
+	if Config.clear then
+		Farm()
 	end
 	RSteal()
 	smiteDmg = 20 + 8 * myHero.level
@@ -104,6 +113,30 @@ function OnTick()
 	if Target then
 
 	end
+end
+
+function Farm()
+	for _, minion in pairs(minionManager(MINION_ENEMY, 750, myHero, MINION_SORT_HEALTH_ASC).objects) do
+		local qDmg = GetQDamage(minion)
+        local eDmg = GetEDamage(minion)
+		if myHero:GetSpellData(_Q).name == "KledRiderQ"  then
+			local hp = VP:GetPredictedHealth(minion, GetDistance(minion)/2800 + 0.250)
+			if myHero:CanUseSpell(_Q) == READY and (hp < qDmg or Config.clearsettings.clearQ == 2) and hp > 0 and Config.clearsettings.clearQ ~= 3 and (GetDistance(minion) > myHero.range or Config.clearsettings.clearQ == 2) then
+					CastSpell(_Q, minion.x, minion.z)
+			end
+		elseif myHero:GetSpellData(_Q).name == "KledQ"  then
+			local hp = VP:GetPredictedHealth(minion, GetDistance(minion)/1600 + 0.250)
+			if myHero:CanUseSpell(_Q) == READY and (hp < qDmg or Config.clearsettings.clearQm == 2) and hp > 0 and Config.clearsettings.clearQm ~= 3 and (GetDistance(minion) > 225 or Config.clearsettings.clearQm == 2) then
+				CastSpell(_Q, minion)
+			end
+		end
+		if myHero:GetSpellData(_E).name == "KledE" and GetDistance(minion) < 550 then
+			local hp = VP:GetPredictedHealth(minion, GetDistance(minion)/1600 + 0.250)
+			if myHero:CanUseSpell(_E) == READY and (hp < qDmg or Config.clearsettings.clearE1 == 2) and hp > 0 and Config.clearsettings.clearE1 ~= 3 and (GetDistance(minion) > myHero.range or Config.clearsettings.clearQ == 2) then
+				CastSpell(_E, minion)
+			end
+		end	
+    end
 end
 
 function ksSmite()
@@ -143,21 +176,23 @@ function OnDraw()
 	if Config.draw.customrange then
 		DrawCircle(myHero.x, myHero.y, myHero.z, Config.draw.rangetest, ARGB(255,255,255,255))
 	end
-	if Config.draw.drawbar then
-		local barPos = GetUnitHPBarPos(myHero);
-		local off = GetUnitHPBarOffset(myHero);
-		local y = barPos.y + (off.y * 53) + 2;
-		local x = barPos.x + (0 * 140) - 25;
-		if OnScreen(barPos.x, barPos.y) and not myHero.dead and myHero.visible then
-			DrawText("Hit enemy's: ".. HitsLeft .. " times", 15, x-43, y-34, 0xFFFFFFFF);
-			DrawText("Kill: ".. MinionsLeft .. " minions", 15, x-43, y-48, 0xFFFFFFFF);
-			DrawText("Land: ".. ShotsLeftMin .. " - " .. ShotsLeftMax .. " (Q)s", 15, x-43, y-62, 0xFFFFFFFF);
+	if myHero.range >= 250 then
+		if Config.draw.drawbar then
+			local barPos = GetUnitHPBarPos(myHero);
+			local off = GetUnitHPBarOffset(myHero);
+			local y = barPos.y + (off.y * 53) + 2;
+			local x = barPos.x + (0 * 140) - 25;
+			if OnScreen(barPos.x, barPos.y) and not myHero.dead and myHero.visible then
+				DrawText("Hit enemy's: ".. HitsLeft .. " times", 15, x-43, y-34, 0xFFFFFFFF);
+				DrawText("Kill: ".. MinionsLeft .. " minions", 15, x-43, y-48, 0xFFFFFFFF);
+				DrawText("Land: ".. ShotsLeftMin .. " - " .. ShotsLeftMax .. " (Q)s", 15, x-43, y-62, 0xFFFFFFFF);
+			end
 		end
-	end
-	if Config.draw.drawscreen then
-		DrawText("Hit enemy's: ".. HitsLeft .. " times", 30, 0, 34, 0xFFFFFFFF);
-		DrawText("Kill: ".. MinionsLeft .. " minions", 30, 0, 62, 0xFFFFFFFF);
-		DrawText("Land: ".. ShotsLeftMin .. " - " .. ShotsLeftMax .. " (Q)s", 30, 0, 90, 0xFFFFFFFF);
+		if Config.draw.drawscreen then
+			DrawText("Hit enemy's: ".. HitsLeft .. " times", 30, 0, 34, 0xFFFFFFFF);
+			DrawText("Kill: ".. MinionsLeft .. " minions", 30, 0, 62, 0xFFFFFFFF);
+			DrawText("Land: ".. ShotsLeftMin .. " - " .. ShotsLeftMax .. " (Q)s", 30, 0, 90, 0xFFFFFFFF);
+		end
 	end
 	if myHero:CanUseSpell(_R) == READY and Config.draw.ultrange then
 		DrawCircleMinimap(myHero.x-50, myHero.y, myHero.z, 4800, 2, ARGB(255,255,255,255), 20)
@@ -250,7 +285,7 @@ function Combo()
 			end
 		end
 		--TargetHaveBuff("kledqmark", target) == false 
-		if myHero:CanUseSpell(_E) == READY and (GetSpellData(_Q).currentCd > 0 or GetSpellData(_Q).level < 1) and ((GetSpellData(_Q).currentCd < GetSpellData(_Q).cd-0.65 and GetSpellData(_Q).level > 1) or (GetDistance(Target) > 125 and (Config.combo.delayE == false or GetSpellData(_Q).level < 1))) then
+		if myHero:CanUseSpell(_E) == READY and (GetSpellData(_Q).currentCd > 0 or GetSpellData(_Q).level < 1) and ((GetSpellData(_Q).currentCd < GetSpellData(_Q).cd-0.65 and GetSpellData(_Q).level > 1) or (GetDistance(Target) > 210 and (Config.combo.delayE == false or GetSpellData(_Q).level < 1))) then
 			if Config.combo.comboE1 == true and myHero:GetSpellData(_E).name == "KledE" then
 				CastE(Target)
 			end
@@ -272,7 +307,7 @@ function GetEDamage(unit)
 	if Elvl < 1 then return 0 end
 	local EDmg = {20, 45, 70, 95, 120}
 	local EDmgMod = 0.60
-	local DmgRaw = EDmg[Elvl] + (myHero.damage * EDmgMod)
+	local DmgRaw = EDmg[Elvl] + (myHero.addDamage * EDmgMod)
 	local Dmg = myHero:CalcDamage(unit, DmgRaw)
 	return Dmg
 end
@@ -283,7 +318,7 @@ function GetQDamage(unit)
 		if Qlvl < 1 then return 0 end
 		local QDmg = {25, 50, 75, 100, 125}
 		local QDmgMod = 0.60
-		local DmgRaw = QDmg[Qlvl] + (myHero.damage * QDmgMod)
+		local DmgRaw = QDmg[Qlvl] + (myHero.addDamage * QDmgMod)
 		local Dmg = myHero:CalcDamage(unit, DmgRaw)
 		return Dmg
 	elseif myHero:GetSpellData(_Q).name == "KledRiderQ" then
@@ -291,7 +326,7 @@ function GetQDamage(unit)
 		if Qlvl < 1 then return 0 end
 		local QDmg = {30, 45, 60, 75, 90}
 		local QDmgMod = 0.80
-		local DmgRaw = QDmg[Qlvl] + (myHero.damage * QDmgMod)
+		local DmgRaw = QDmg[Qlvl] + (myHero.addDamage * QDmgMod)
 		local Dmg = myHero:CalcDamage(unit, DmgRaw)
 		return Dmg
 	end
@@ -325,7 +360,7 @@ function CastE(target)
 		if CastPosition and HitChance > 0 and myHero:CanUseSpell(_E) == READY then
 			CastSpell(_E, CastPosition.x, CastPosition.z)
 		end
-	elseif myHero:GetSpellData(_E).name == "KledE2" and myHero:CanUseSpell(_E) == READY and GetDistance(target) < 625 and TargetHaveBuff("klede2target", target) and (GetDistance(target) > 125 or target.health < GetEDamage(target)) then
+	elseif myHero:GetSpellData(_E).name == "KledE2" and myHero:CanUseSpell(_E) == READY and GetDistance(target) < 625 and TargetHaveBuff("klede2target", target) and (GetDistance(target) > 210 or target.health < GetEDamage(target)) then
 		--print("Casted Fuck the Attack Dash")
 		CastSpell(_E)
 	end

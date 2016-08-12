@@ -9,7 +9,7 @@ TIAMATSLOT = nil
 Mount = true
 smite = nil
 ignite = nil
-KledVersion = 1.1
+KledVersion = 1.2
 local VP = VPrediction()
 
 function OnLoad()
@@ -19,6 +19,8 @@ function OnLoad()
     Config:addSubMenu("Combo", "combo")
     Config.combo:addParam("comboQm", "Use Mounted Q in combo", SCRIPT_PARAM_ONOFF, true)
     Config.combo:addParam("comboQ", "Use Gun Q in combo", SCRIPT_PARAM_ONOFF, true)
+    Config.combo:addParam("comboCloseQ", "Limit Gun Q range", SCRIPT_PARAM_ONOFF, true)
+    Config.combo:addParam("ComboCloseQRange", "Gun Q Range Limit", SCRIPT_PARAM_SLICE, 125, 0, 700, 0)
     Config.combo:addParam("comboE1", "Use First (E) dash in combo", SCRIPT_PARAM_ONOFF, true)
     Config.combo:addParam("comboE2", "Use Second(E) dash in combo", SCRIPT_PARAM_ONOFF, true)
     Config.combo:addParam("delayE", "Always Delay First (E)", SCRIPT_PARAM_ONOFF, true)
@@ -28,13 +30,23 @@ function OnLoad()
     Config.poke:addParam("harassQ", "Use Gun (Q) in harass", SCRIPT_PARAM_ONOFF, true)
     Config.poke:addParam("harassE1", "Use First (E) dash in harass", SCRIPT_PARAM_ONOFF, false)
     Config.poke:addParam("harassE2", "Use Second(E) dash in harass", SCRIPT_PARAM_ONOFF, false)
-    Config:addParam("rangetest", "Champion Circle", SCRIPT_PARAM_SLICE, 500, 0, 2000, 1)
+    Config:addSubMenu("Kill Steal", "ks")
+    Config.ks:addParam("ksQm", "Use Mounted Q in KS", SCRIPT_PARAM_ONOFF, true)
+    Config.ks:addParam("ksQ", "Use Gun Q in KS", SCRIPT_PARAM_ONOFF, true)
+    Config.ks:addParam("ksE1", "Use First (E) dash in KS", SCRIPT_PARAM_ONOFF, true)
+    Config.ks:addParam("ksE2", "Use Second(E) dash in KS", SCRIPT_PARAM_ONOFF, true)
+    Config.ks:addParam("ksSmiteSum", "Smite them dead", SCRIPT_PARAM_ONOFF, true)
+    Config.ks:addParam("ksIgniteSum", "Ignite the fuckers", SCRIPT_PARAM_ONOFF, true)
+    Config:addSubMenu("Draw", "draw")
+    Config.draw:addParam("rangetest", "Champion Circle", SCRIPT_PARAM_SLICE, 500, 0, 2000, 1)
+    Config.draw:addParam("customrange", "Draw Custom Range Circle", SCRIPT_PARAM_ONOFF, true)
+    Config.draw:addParam("ultrange", "Draw Minimap Ult Range", SCRIPT_PARAM_ONOFF, true)
     targetSelector = TargetSelector(TARGET_LESS_CAST, 900, DAMAGE_PHYSICAL, true)
 
 
     UPL:AddToMenu(Config)
     UPL:AddSpell(_Q, { speed = 1000, delay = 0.25, range = 750, width = 70, collision = false, aoe = false, type = "linear" })
-    UPL:AddSpell(_W, { speed = 2000, delay = 0.25, range = 750, width = 70, collision = false, aoe = true, type = "cone" })
+    UPL:AddSpell(_W, { speed = 1800, delay = 0.50, range = 750, width = 70, collision = false, aoe = true, type = "cone" })
     UPL:AddSpell(_E, { speed = 1400, delay = 0.25, range = 550, width = 70, collision = false, aoe = true, type = "linear" })
 end
 
@@ -56,6 +68,7 @@ end
 function OnTick()
 	GetTiamat()
 	GetTitanic()
+	--print(tostring(myHero.mana))
 	targetSelector:update()
 	--print(myHero:GetSpellData(_Q).name)
 	Target = targetSelector.target
@@ -70,12 +83,12 @@ function OnTick()
 	igniteDmg = 50 + 20*myHero.level
 	if smite == nil then
 		smite = Slot("S5_SummonerSmitePlayerGanker")
-	else
+	elseif Config.ks.ksSmiteSum then
 		ksSmite()
 	end
 	if ignite == nil then
 		ignite = Slot("SummonerDot")
-	else
+	elseif Config.ks.ksIgniteSum then
 		ksIgnite()
 	end
 	if Target then
@@ -117,8 +130,10 @@ end
 
 
 function OnDraw()
-	DrawCircle(myHero.x, myHero.y, myHero.z, Config.rangetest, ARGB(255,255,255,255))
-	if myHero:CanUseSpell(_R) == READY then
+	if Config.draw.customrange then
+		DrawCircle(myHero.x, myHero.y, myHero.z, Config.draw.rangetest, ARGB(255,255,255,255))
+	end
+	if myHero:CanUseSpell(_R) == READY and Config.draw.ultrange then
 		DrawCircleMinimap(myHero.x-50, myHero.y, myHero.z, 4800, 2, ARGB(255,255,255,255), 20)
 	end
 end
@@ -204,7 +219,7 @@ function Combo()
 				CastQ(Target)
 				--DelayAction(function() CastE(Target) end, 1.0)
 			end
-			if Config.combo.comboQ == true and myHero:GetSpellData(_Q).name == "KledRiderQ" then
+			if Config.combo.comboQ == true and myHero:GetSpellData(_Q).name == "KledRiderQ" and ((GetDistance(Target) < Config.combo.ComboCloseQRange and Config.combo.comboCloseQ) or not Config.combo.comboCloseQ) then
 				CastQ(Target)
 			end
 		end
@@ -244,7 +259,7 @@ function GetQDamage(unit)
 		local QDmgMod = 0.60
 		local DmgRaw = QDmg[Qlvl] + (myHero.damage * QDmgMod)
 		local Dmg = myHero:CalcDamage(unit, DmgRaw)
-		return Dmg	
+		return Dmg
 	elseif myHero:GetSpellData(_Q).name == "KledRiderQ" then
 		local Qlvl = myHero:GetSpellData(_Q).level
 		if Qlvl < 1 then return 0 end
@@ -295,18 +310,18 @@ function RSteal()
 	for i,enemy in pairs(GetEnemyHeroes()) do
     	if not enemy.dead and enemy.visible then
 			if myHero:CanUseSpell(_Q) == READY then		
-				if myHero:GetSpellData(_Q).name == "KledQ" and enemy.health < GetQDamage(enemy) and ValidTarget(enemy, 750) then
+				if myHero:GetSpellData(_Q).name == "KledQ" and enemy.health < GetQDamage(enemy) and ValidTarget(enemy, 750) and Config.ks.ksQm then
 					CastQ(enemy)
 				end
-				if myHero:GetSpellData(_Q).name == "KledRiderQ" and enemy.health < GetQDamage(enemy) and ValidTarget(enemy, 700) then
+				if myHero:GetSpellData(_Q).name == "KledRiderQ" and enemy.health < GetQDamage(enemy) and ValidTarget(enemy, 700) and Config.ks.ksQ then
 					CastQ(enemy)
 				end
 			end
 			if myHero:CanUseSpell(_E) == READY then
-				if myHero:GetSpellData(_E).name == "KledE" and enemy.health < GetEDamage(enemy) and ValidTarget(enemy, 550) then
+				if myHero:GetSpellData(_E).name == "KledE" and enemy.health < GetEDamage(enemy) and ValidTarget(enemy, 550) and Config.ks.ksE1 then
 					CastE(enemy)
 				end
-				if myHero:GetSpellData(_E).name == "KledE2" and enemy.health < GetEDamage(enemy) and ValidTarget(enemy, 625) and TargetHaveBuff("klede2target", enemy)then
+				if myHero:GetSpellData(_E).name == "KledE2" and enemy.health < GetEDamage(enemy) and ValidTarget(enemy, 625) and TargetHaveBuff("klede2target", enemy) and Config.ks.ksE2 then
 					CastSpell(_E)
 				end
 			end

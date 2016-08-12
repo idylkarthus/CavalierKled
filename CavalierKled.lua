@@ -419,7 +419,7 @@ function OnProcessSpell(unit, spell)
 end
 function OnProcessAttack(unit, attack)
 	if unit == myHero then
-			print(attack.name)
+			--print(attack.name)
 	end
 	if unit == myHero and (attack.name == "KledCritAttack" or attack.name == "KledWAttack1" or attack.name == "KledWAttack2" or attack.name == "KledWAttack3" or attack.name == "KledWAttack4" or attack.name == "KledBasicAttack" or attack.name == "KledBasicAttack2" or attack.name == "KledBasicAttack3") then
 		--print("Attacked")

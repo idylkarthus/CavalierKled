@@ -9,7 +9,7 @@ TIAMATSLOT = nil
 Mount = true
 smite = nil
 ignite = nil
-KledVersion = 1.5
+KledVersion = 1.6
 MinionsLeft = 0
 HitsLeft = 0
 ShotsLeftMin = 0
@@ -285,11 +285,11 @@ function Combo()
 			end
 		end
 		--TargetHaveBuff("kledqmark", target) == false 
-		if myHero:CanUseSpell(_E) == READY and (GetSpellData(_Q).currentCd > 0 or GetSpellData(_Q).level < 1) and ((GetSpellData(_Q).currentCd < GetSpellData(_Q).cd-0.65 and GetSpellData(_Q).level > 1) or (GetDistance(Target) > 210 and (Config.combo.delayE == false or GetSpellData(_Q).level < 1))) then
+		if myHero:CanUseSpell(_E) == READY and (GetSpellData(_Q).currentCd > 0 or GetSpellData(_Q).level < 1 or Config.combo.comboQm ~= true) and ((GetSpellData(_Q).currentCd < GetSpellData(_Q).cd-0.65 and GetSpellData(_Q).level >= 1) or (GetDistance(Target) > 210 and (Config.combo.delayE == false or GetSpellData(_Q).level < 1))) then
 			if Config.combo.comboE1 == true and myHero:GetSpellData(_E).name == "KledE" then
 				CastE(Target)
 			end
-			if Config.combo.comboE2 == true and myHero:GetSpellData(_E).name == "KledE2" then
+			if Config.combo.comboE2 == true and myHero:GetSpellData(_E).name == "KledE2" and GetDistance(Target) > 210 then
 				CastE(Target)
 			end
 		end
@@ -422,7 +422,7 @@ function OnProcessAttack(unit, attack)
 	end
 	if unit == myHero and (attack.name == "KledWAttack1" or attack.name == "KledWAttack2" or attack.name == "KledWAttack3" or attack.name == "KledWAttack4" or attack.name == "KledBasicAttack" or attack.name == "KledBasicAttack2" or attack.name == "KledBasicAttack3") then
 		--print("Attacked")
-		if Target then
+		if Target and Config.shoot then
 			if myHero:GetSpellData(_E).name == "KledE2" and myHero:CanUseSpell(_E) == READY and GetDistance(Target) < 625 and TargetHaveBuff("klede2target", Target) and Config.combo.comboE2 == true then
 				--print("Casted After Attack Dash")
 				CastSpell(_E)
@@ -435,7 +435,7 @@ function OnProcessAttack(unit, attack)
 end
 
 function OnCastSpell(iSpell, startPos, endPos, Target)
-    --print(iSpell)
+    --print(iSpell)	
 end
 class "ScriptUpdate"
 function ScriptUpdate:__init(LocalVersion,UseHttps, Host, VersionPath, ScriptPath, SavePath, CallbackUpdate, CallbackNoUpdate, CallbackNewVersion,CallbackError)

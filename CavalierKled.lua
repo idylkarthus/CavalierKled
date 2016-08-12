@@ -9,7 +9,11 @@ TIAMATSLOT = nil
 Mount = true
 smite = nil
 ignite = nil
-KledVersion = 1.2
+KledVersion = 1.3
+MinionsLeft = 0
+HitsLeft = 0
+ShotsLeftMin = 0
+ShotsLeftMax = 0
 local VP = VPrediction()
 
 function OnLoad()
@@ -40,6 +44,8 @@ function OnLoad()
     Config:addSubMenu("Draw", "draw")
     Config.draw:addParam("rangetest", "Champion Circle", SCRIPT_PARAM_SLICE, 500, 0, 2000, 1)
     Config.draw:addParam("customrange", "Draw Custom Range Circle", SCRIPT_PARAM_ONOFF, true)
+    Config.draw:addParam("drawbar", "Draw Mount Info On HP Bar", SCRIPT_PARAM_ONOFF, true)
+    Config.draw:addParam("drawscreen", "Draw Mount Info On Screen", SCRIPT_PARAM_ONOFF, true)
     Config.draw:addParam("ultrange", "Draw Minimap Ult Range", SCRIPT_PARAM_ONOFF, true)
     targetSelector = TargetSelector(TARGET_LESS_CAST, 900, DAMAGE_PHYSICAL, true)
 
@@ -72,6 +78,10 @@ function OnTick()
 	targetSelector:update()
 	--print(myHero:GetSpellData(_Q).name)
 	Target = targetSelector.target
+	MinionsLeft = math.ceil((100-myHero.mana)/4)
+	HitsLeft = math.ceil((100-myHero.mana)/15)
+	ShotsLeftMin = math.ceil((100-myHero.mana)/25)
+	ShotsLeftMax = math.ceil((100-myHero.mana)/5)
 	if Config.shoot then
 		Combo()
 	end
@@ -132,6 +142,22 @@ end
 function OnDraw()
 	if Config.draw.customrange then
 		DrawCircle(myHero.x, myHero.y, myHero.z, Config.draw.rangetest, ARGB(255,255,255,255))
+	end
+	if Config.draw.drawbar then
+		local barPos = GetUnitHPBarPos(myHero);
+		local off = GetUnitHPBarOffset(myHero);
+		local y = barPos.y + (off.y * 53) + 2;
+		local x = barPos.x + (0 * 140) - 25;
+		if OnScreen(barPos.x, barPos.y) and not myHero.dead and myHero.visible then
+			DrawText("Hit enemy's: ".. HitsLeft .. " times", 15, x-43, y-34, 0xFFFFFFFF);
+			DrawText("Kill: ".. MinionsLeft .. " minions", 15, x-43, y-48, 0xFFFFFFFF);
+			DrawText("Land: ".. ShotsLeftMin .. " - " .. ShotsLeftMax .. " (Q)s", 15, x-43, y-62, 0xFFFFFFFF);
+		end
+	end
+	if Config.draw.drawscreen then
+		DrawText("Hit enemy's: ".. HitsLeft .. " times", 30, 0, 34, 0xFFFFFFFF);
+		DrawText("Kill: ".. MinionsLeft .. " minions", 30, 0, 62, 0xFFFFFFFF);
+		DrawText("Land: ".. ShotsLeftMin .. " - " .. ShotsLeftMax .. " (Q)s", 30, 0, 90, 0xFFFFFFFF);
 	end
 	if myHero:CanUseSpell(_R) == READY and Config.draw.ultrange then
 		DrawCircleMinimap(myHero.x-50, myHero.y, myHero.z, 4800, 2, ARGB(255,255,255,255), 20)
